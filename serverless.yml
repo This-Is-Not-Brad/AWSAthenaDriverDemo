@@ -46,6 +46,8 @@ functions:
       ACCOUNT: mtdatadev
       REGION: ap-southeast-2
       BUCKET: s3://${self:custom.S3.bucketName}/
+      DB: ${self:custom.Glue.DBName}
+      TABLE: ${self:custom.Glue.TableName}
     # API Gateway Definition
     events:
       - http:
@@ -57,6 +59,61 @@ functions:
 
 custom:
   S3:
-    bucketName: brads-playground
+    bucketName: brads-playground    ##Change this to your S3 BucketName
+  Glue:
+    DBName: peopledb        ##Note: Glue DB Names must be lowercase
+    TableName: peopletable  ##Note: Glue Table Names must be lowercase
 
-   
+
+resources:
+  Resources:
+  ## AWS Glue Database
+    GlueDB:
+      Type: AWS::Glue::Database
+      Properties:
+        CatalogId: !Ref AWS::AccountId
+        DatabaseInput: 
+          Name: ${self:custom.Glue.DBName}
+  ## AWS Glue Table Definition
+    GlueTable:
+      Type: AWS::Glue::Table
+      DependsOn: GlueDB ## Need to wait for the Database to finish creating before we can create a Table
+      Properties:
+        CatalogId: !Ref AWS::AccountId
+        DatabaseName: ${self:custom.Glue.DBName}
+        TableInput:
+          Name: ${self:custom.Glue.TableName}
+          Description: Table For People Data
+          TableType: EXTERNAL_TABLE
+          StorageDescriptor:
+            OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            Columns:
+            - Name: first_name
+              Type: string
+            - Name: last_name
+              Type: string
+            - Name: company_name
+              Type: string
+            - Name: address
+              Type: string
+            - Name: city
+              Type: string		
+            - Name: state
+              Type: string		
+            - Name: post
+              Type: bigint		
+            - Name: phone1
+              Type: string		
+            - Name: phone2
+              Type: string	
+            - Name: email
+              Type: string
+            - Name: web
+              Type: string
+            InputFormat: org.apache.hadoop.mapred.TextInputFormat
+            Location: s3://${self:custom.S3.bucketName}/Athena/DemoCSV/
+            SerdeInfo:
+              Parameters:
+                field.delim: ","
+              SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+  

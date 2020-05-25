@@ -31,6 +31,8 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	//Set Region
 	S3Region := os.Getenv("REGION")
 	S3Bucket := os.Getenv("BUCKET")
+	DB := os.Getenv("DB")
+	TABLE := os.Getenv("TABLE")
 
 	//Start Session
 	sess, err := session.NewSession(&aws.Config{
@@ -62,19 +64,22 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		fmt.Println(err)
 	}
 
+	//Store Results
 	var results State
 
-	// Query
-
-	err = db.QueryRow(`
+	// Build Query
+	query := fmt.Sprintf(`
 	SELECT State,
 	Count(*) as "Count"
 	
-    FROM "driverdemo"."democsv"
+    FROM "%v"."%v"
 
-	WHERE State = '`+state+`'
+	WHERE State = '%v'
 
-	GROUP BY State`).Scan(&results.State, &results.Count)
+	GROUP BY State`, DB, TABLE, state)
+
+	//Run Query
+	err = db.QueryRow(query).Scan(&results.State, &results.Count)
 	if err != nil {
 		fmt.Println(err)
 	}
