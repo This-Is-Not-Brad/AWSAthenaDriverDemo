@@ -2,7 +2,7 @@
     CREATE DATABASE IF NOT EXISTS driverdemo;
 
 --CREATE TABLE
-    CREATE EXTERNAL TABLE `democsv`(
+    CREATE EXTERNAL TABLE `peopletable`(
     `first_name` string, 
     `last_name` string, 
     `company_name` string, 
@@ -25,13 +25,13 @@
 
 --SELECT FROM TABLE
     SELECT *
-    FROM "driverdemo"."democsv"
+    FROM "peopledb"."peopletable"
 
 --SELECT QUERY (NO WHERE CLAUSE)
     SELECT State,
     Count(*) as "Count"
 
-    FROM "driverdemo"."democsv"
+    FROM "peopledb"."peopletable"
 
     GROUP BY State
 
@@ -39,7 +39,7 @@
     SELECT State,
     Count(*) as "Count"
 
-    FROM "driverdemo"."democsv"
+    FROM "peopledb"."peopletable"
 
     WHERE State = 'VIC'
 

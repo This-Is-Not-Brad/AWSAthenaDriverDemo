@@ -43,7 +43,6 @@ functions:
     handler: bin/getState
     # Define function environment variables here
     environment:
-      ACCOUNT: mtdatadev
       REGION: ap-southeast-2
       BUCKET: s3://${self:custom.S3.bucketName}/
       DB: ${self:custom.Glue.DBName}
